@@ -46,38 +46,59 @@ npm run dev
 
 ## Storage
 
+This project uses **static file storage** - all data is stored in files that are committed to git. This means:
+
+- ✅ **Works when deployed** - No database or external storage needed!
+- ✅ **Simple** - Just commit files to git
+- ✅ **Free** - No storage costs
+
+### How It Works
+
+- **Projects**: Stored in `data/projects.json`
+- **Files**: Stored in `public/uploads/` (served as static assets)
+- **File Metadata**: Stored in `data/files.json`
+
 ### Local Development
-Files are stored locally in the `uploads/` directory, organized by project and category. Project and file metadata are stored in JSON files in the `data/` directory.
 
-### Production Deployment (Vercel)
+1. **Create/Edit Projects**: Use the website - it works locally!
+2. **Upload Files**: Use the website upload feature
+3. **Commit Changes**: After making changes, commit the files:
+   ```bash
+   git add data/ public/uploads/
+   git commit -m "Update projects and files"
+   git push
+   ```
 
-**IMPORTANT**: When deploying to Vercel, you **MUST** configure Redis/KV storage because Vercel's file system is read-only.
+### Production Deployment
 
-#### Option 1: Vercel KV (Recommended)
-1. Go to your Vercel project dashboard
-2. Navigate to **Storage** → **Create** → **KV**
-3. Create a new KV database
-4. Go to **Settings** → **Environment Variables**
-5. Add the following environment variables (they should be automatically added):
-   - `KV_REST_API_URL` - Your KV REST API URL
-   - `KV_REST_API_TOKEN` - Your KV REST API token
+**The website is read-only in production** - you cannot create projects or upload files through the website.
 
-#### Option 2: Upstash Redis
-1. Create an account at [Upstash](https://upstash.com)
-2. Create a new Redis database
-3. Copy the REST URL and token
-4. In Vercel, go to **Settings** → **Environment Variables**
-5. Add:
-   - `UPSTASH_REDIS_REST_URL` - Your Upstash Redis REST URL
-   - `UPSTASH_REDIS_REST_TOKEN` - Your Upstash Redis REST token
+To add files in production:
 
-**Note**: After adding environment variables, you need to redeploy your application for the changes to take effect.
+1. **Add files manually**:
+   - Place files in: `public/uploads/[projectId]/[categoryId]/[filename]`
+   - Example: `public/uploads/1234567890/code/document.pdf`
 
-#### Troubleshooting
-If you see a 500 error on `/api/projects`, it's likely because Redis/KV is not configured. Check:
-1. Environment variables are set in Vercel project settings
-2. You've redeployed after adding environment variables
-3. The environment variables are correct (no typos, full URLs/tokens)
+2. **Update metadata**:
+   - Edit `data/files.json` and add file entries
+   - Edit `data/projects.json` to add/edit projects
+
+3. **Commit and deploy**:
+   ```bash
+   git add public/uploads/ data/
+   git commit -m "Add files manually"
+   git push
+   ```
+
+See `MANUAL_FILE_UPLOAD.md` for detailed instructions.
+
+### Deployment to Vercel
+
+1. Push your code to GitHub
+2. Connect your repo to Vercel
+3. Deploy - that's it! No environment variables or storage setup needed.
+
+**Note**: Make sure `data/` and `public/uploads/` are committed to git (they're not in `.gitignore`).
 
 ## Project Structure
 
@@ -91,6 +112,7 @@ If you see a 500 error on `/api/projects`, it's likely because Redis/KV is not c
 │   ├── auth.ts           # Authentication helpers
 │   ├── files.ts          # File management
 │   └── projects.ts       # Project management
-├── uploads/              # Uploaded files (created automatically)
-└── data/                 # JSON data files (created automatically)
+├── public/
+│   └── uploads/          # Uploaded files (committed to git)
+└── data/                 # JSON data files (committed to git)
 ```

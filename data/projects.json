@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1769615258066",
+    "name": "Satisfaction Survey",
+    "createdAt": "2026-01-28T15:47:38.066Z",
+    "updatedAt": "2026-01-28T16:12:13.312Z",
+    "moduleName": "Business Research Methods",
+    "supervisorName": "Carla Rinne"
+  },
+  {
+    "id": "1769615276596",
+    "name": "3D Printed Vacuum Cleaner",
+    "createdAt": "2026-01-28T15:47:56.596Z",
+    "updatedAt": "2026-01-28T16:12:32.108Z",
+    "moduleName": "Market & Advertising Psychology",
+    "supervisorName": "Phuong Phung Minh"
+  }
+]

@@ -12,7 +12,7 @@ interface FileMetadata {
   categoryId: string;
   filename: string;
   originalName: string;
-  size: number;
+  size?: number; // Optional - auto-calculated if missing
   mimeType: string;
   uploadedAt: string;
 }
@@ -120,8 +120,8 @@ export default function CategoryPage() {
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes || bytes === 0) return 'Unknown size';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));

@@ -35,9 +35,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# uploads
-/uploads
-/data
+# Keep data and public/uploads in git for static deployment
+# /data
+# /public/uploads
 
 # documentation (keep only README.md)
 VERCEL_SETUP.md

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllFiles, getFileBlobUrl, deleteFile } from '@/lib/files';
+import { getAllFiles, deleteFile } from '@/lib/files';
 import { isAdminServer } from '@/lib/auth-server';
 
 export async function GET(
@@ -22,39 +22,10 @@ export async function GET(
       );
     }
 
-    // If we have a blob URL (Vercel Blob), redirect to it
-    if (fileMetadata.blobUrl) {
-      return NextResponse.redirect(fileMetadata.blobUrl);
-    }
-
-    // Fallback to local file system (for development)
-    const blobUrl = await getFileBlobUrl(id, categoryId, filename);
-    if (blobUrl) {
-      return NextResponse.redirect(blobUrl);
-    }
-
-    // If no blob URL, try to read from local filesystem
-    const fs = await import('fs');
-    const path = await import('path');
-    const { getFilePath } = await import('@/lib/files');
-    const filePath = getFilePath(id, categoryId, filename);
-    
-    if (!fs.existsSync(filePath)) {
-      return NextResponse.json(
-        { error: 'File not found' },
-        { status: 404 }
-      );
-    }
-
-    const fileBuffer = fs.readFileSync(filePath);
-    const contentType = fileMetadata.mimeType || 'application/octet-stream';
-
-    return new NextResponse(fileBuffer, {
-      headers: {
-        'Content-Type': contentType,
-        'Content-Disposition': `attachment; filename="${encodeURIComponent(fileMetadata.originalName || filename)}"`,
-      },
-    });
+    // Files are served as static assets from public/uploads
+    // Redirect to the static file URL
+    const fileUrl = `/uploads/${id}/${categoryId}/${filename}`;
+    return NextResponse.redirect(new URL(fileUrl, request.url));
   } catch (error) {
     console.error('Download error:', error);
     return NextResponse.json(
