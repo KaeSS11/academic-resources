@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #121212;
+  --foreground: #ededed;
+}
+
+[data-theme='light'] {
+  --background: #ffffff;
+  --foreground: #1a1a1a;
+}
+
+[data-theme='dark'] {
+  --background: #121212;
+  --foreground: #ededed;
+}
+
+* {
+  transition-property: background-color, color, border-color, opacity;
+  transition-duration: 0.3s;
+  transition-timing-function: ease-in-out;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+html {
+  transition: background-color 0.3s ease-in-out;
+}
