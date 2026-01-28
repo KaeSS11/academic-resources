@@ -327,7 +327,7 @@ export default function Home() {
             ) : (
               <div
                 key={project.id}
-                onClick={() => router.push(`/projects/${project.id}`)}
+                onClick={() => router.push(`/projects/${project.slug || project.id}`)}
                 className="bg-gray-50 dark:bg-[#1E1E1E] p-4 sm:p-6 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#252525] transition-colors border border-gray-200 dark:border-gray-800/30 relative"
               >
                 {isAdminUser && (
