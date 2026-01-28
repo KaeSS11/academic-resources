@@ -37,3 +37,8 @@ next-env.d.ts
 # uploads
 /uploads
 /data
+
+# documentation (keep only README.md)
+VERCEL_SETUP.md
+VERCEL_ENV_VARS.md
+DEPLOYMENT.md
