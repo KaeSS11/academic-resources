@@ -8,6 +8,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface Project {
   id: string;
+  slug?: string;
   name: string;
   description?: string;
   moduleName?: string;
