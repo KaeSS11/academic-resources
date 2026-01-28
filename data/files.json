@@ -58,5 +58,25 @@
     "size": 255765,
     "mimeType": "application/pdf",
     "uploadedAt": "2026-01-28T20:17:41.961Z"
+  },
+  {
+    "id": "mkyhyfmnw4a9c27ug",
+    "projectId": "brm",
+    "categoryId": "graphical-data",
+    "filename": "mkyhyfmn2tawz9kz37-BRM_Item_Level_Likert_Plots.pdf",
+    "originalName": "BRM_Item_Level_Likert_Plots.pdf",
+    "size": 30027,
+    "mimeType": "application/pdf",
+    "uploadedAt": "2026-01-28T20:47:46.847Z"
+  },
+  {
+    "id": "mkyhyqga0asxf9lc64jf",
+    "projectId": "brm",
+    "categoryId": "graphical-data",
+    "filename": "mkyhyqg9t6a3h2cyzpm-BRM_Pooled_Likert_Plots.pdf",
+    "originalName": "BRM_Pooled_Likert_Plots.pdf",
+    "size": 204930,
+    "mimeType": "application/pdf",
+    "uploadedAt": "2026-01-28T20:48:00.874Z"
   }
 ]
