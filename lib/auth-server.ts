@@ -2,7 +2,17 @@
 import { cookies } from 'next/headers';
 
 const ADMIN_COOKIE_NAME = 'admin_session';
-const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || 'admin123').trim(); // Change this in production!
+
+// Check if we're in production (read-only mode)
+function isProduction(): boolean {
+  return process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+}
+
+// Admin password - works in both dev and production
+// Note: In production, login works but create/upload features are disabled (read-only)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD 
+  ? process.env.ADMIN_PASSWORD.trim() 
+  : 'admin123'; // Default password
 
 export function verifyAdminPassword(password: string): boolean {
   if (!password) return false;

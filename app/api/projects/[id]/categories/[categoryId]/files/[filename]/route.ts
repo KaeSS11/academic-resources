@@ -51,13 +51,29 @@ export async function DELETE(
       );
     }
 
+    // Check if we're in production (read-only mode)
+    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    if (isProduction) {
+      return NextResponse.json(
+        { 
+          error: 'File deletion is disabled in production. This site is read-only.',
+          hint: 'To delete files, remove them from public/uploads/ and update data/files.json, then commit to git. See DEPLOYMENT.md for instructions.'
+        },
+        { status: 403 }
+      );
+    }
+
     await deleteFile(id, categoryId, filename);
     
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to delete file' },
+      { 
+        error: 'Failed to delete file',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      },
       { status: 500 }
     );
   }

@@ -23,6 +23,18 @@ export async function POST(
       );
     }
 
+    // Check if we're in production (read-only mode)
+    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    if (isProduction) {
+      return NextResponse.json(
+        { 
+          error: 'File uploads are disabled in production. This site is read-only.',
+          hint: 'To add files, place them in public/uploads/[projectId]/[categoryId]/ and update data/files.json, then commit to git. See DEPLOYMENT.md for instructions.'
+        },
+        { status: 403 }
+      );
+    }
+
     const formData = await request.formData();
     const files = formData.getAll('files') as File[];
 
@@ -60,8 +72,12 @@ export async function POST(
     return NextResponse.json({ files: uploadedFiles }, { status: 201 });
   } catch (error) {
     console.error('Upload error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to upload files' },
+      { 
+        error: 'Failed to upload files',
+        details: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+      },
       { status: 500 }
     );
   }

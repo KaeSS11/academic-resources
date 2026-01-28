@@ -38,6 +38,18 @@ export async function PUT(
       );
     }
 
+    // Check if we're in production (read-only mode)
+    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
+    if (isProduction) {
+      return NextResponse.json(
+        { 
+          error: 'Project editing is disabled in production. This site is read-only.',
+          hint: 'To edit projects, update data/projects.json manually and commit to git. See DEPLOYMENT.md for instructions.'
+        },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { name, description, moduleName, supervisorName } = body;
