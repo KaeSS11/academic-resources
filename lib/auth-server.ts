@@ -2,10 +2,11 @@
 import { cookies } from 'next/headers';
 
 const ADMIN_COOKIE_NAME = 'admin_session';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123'; // Change this in production!
+const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || 'admin123').trim(); // Change this in production!
 
 export function verifyAdminPassword(password: string): boolean {
-  return password === ADMIN_PASSWORD;
+  if (!password) return false;
+  return password.trim() === ADMIN_PASSWORD;
 }
 
 export async function setAdminSession() {
