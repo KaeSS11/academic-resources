@@ -4,11 +4,13 @@ import { isAdminServer } from '@/lib/auth-server';
 
 export async function GET() {
   try {
-    const projects = getAllProjects();
+    const projects = await getAllProjects();
     return NextResponse.json(projects);
   } catch (error) {
+    console.error('Error fetching projects:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to fetch projects' },
+      { error: 'Failed to fetch projects', details: process.env.NODE_ENV === 'development' ? errorMessage : undefined },
       { status: 500 }
     );
   }
@@ -35,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const project = createProject(
+    const project = await createProject(
       name.trim(), 
       description?.trim(), 
       moduleName?.trim(), 
@@ -43,8 +45,10 @@ export async function POST(request: NextRequest) {
     );
     return NextResponse.json(project, { status: 201 });
   } catch (error) {
+    console.error('Error creating project:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
-      { error: 'Failed to create project' },
+      { error: 'Failed to create project', details: process.env.NODE_ENV === 'development' ? errorMessage : undefined },
       { status: 500 }
     );
   }

@@ -7,7 +7,7 @@ export async function GET(
 ) {
   try {
     const { id, categoryId } = await params;
-    const files = getFilesByCategory(id, categoryId);
+    const files = await getFilesByCategory(id, categoryId);
     return NextResponse.json(files);
   } catch (error) {
     return NextResponse.json(

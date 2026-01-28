@@ -39,7 +39,7 @@ export async function POST(
       const buffer = Buffer.from(await file.arrayBuffer());
       const filename = `${generateId()}-${file.name}`;
       
-      saveFile(id, categoryId, filename, buffer);
+      const blobUrl = await saveFile(id, categoryId, filename, buffer);
 
       const metadata = {
         id: generateId(),
@@ -50,9 +50,10 @@ export async function POST(
         size: file.size,
         mimeType: file.type,
         uploadedAt: new Date().toISOString(),
+        blobUrl: typeof blobUrl === 'string' && blobUrl.startsWith('http') ? blobUrl : undefined,
       };
 
-      saveFileMetadata(metadata);
+      await saveFileMetadata(metadata);
       uploadedFiles.push(metadata);
     }
 
