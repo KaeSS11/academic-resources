@@ -329,7 +329,7 @@ export default function Home() {
               <div
                 key={project.id}
                 onClick={() => router.push(`/projects/${project.slug || project.id}`)}
-                className="bg-gray-50 dark:bg-[#1E1E1E] p-4 sm:p-6 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#252525] transition-colors border border-gray-200 dark:border-gray-800/30 relative"
+                className={`bg-gray-50 dark:bg-[#1E1E1E] p-4 sm:p-6 ${isAdminUser ? 'pr-10 sm:pr-12' : ''} rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#252525] transition-colors border border-gray-200 dark:border-gray-800/30 relative`}
               >
                 {isAdminUser && (
                   <button
@@ -343,8 +343,8 @@ export default function Home() {
                     <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                 )}
-                <div className="mb-2 pr-8 sm:pr-12">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="mb-2">
+                  <div className="flex items-start gap-2 mb-1">
                     <Folder className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 dark:text-blue-400 flex-shrink-0" />
                     <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white break-words">{project.name}</h2>
                   </div>
