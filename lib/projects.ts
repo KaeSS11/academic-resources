@@ -4,6 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 
 export interface Project {
   id: string;
+  slug?: string;
   name: string;
   description?: string;
   moduleName?: string;

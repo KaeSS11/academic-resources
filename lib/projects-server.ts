@@ -60,9 +60,9 @@ export async function getAllProjects(): Promise<Project[]> {
   return getAllProjectsLocal();
 }
 
-export async function getProject(id: string): Promise<Project | null> {
+export async function getProject(idOrSlug: string): Promise<Project | null> {
   const projects = getAllProjectsLocal();
-  return projects.find(p => p.id === id) || null;
+  return projects.find(p => p.id === idOrSlug || p.slug === idOrSlug) || null;
 }
 
 export async function createProject(
@@ -74,6 +74,11 @@ export async function createProject(
   const projects = getAllProjectsLocal();
   const newProject: Project = {
     id: Date.now().toString(),
+    slug: name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-'),
     name,
     description,
     moduleName,
@@ -91,7 +96,7 @@ export async function updateProject(
   updates: Partial<Pick<Project, 'name' | 'description' | 'moduleName' | 'supervisorName'>>
 ): Promise<Project | null> {
   const projects = getAllProjectsLocal();
-  const projectIndex = projects.findIndex(p => p.id === id);
+  const projectIndex = projects.findIndex(p => p.id === id || p.slug === id);
   
   if (projectIndex === -1) {
     return null;
