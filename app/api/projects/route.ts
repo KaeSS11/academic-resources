@@ -11,14 +11,25 @@ export async function GET() {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     const errorStack = error instanceof Error ? error.stack : undefined;
     console.error('Full error stack:', errorStack);
+    
+    // Check if this is a Redis/KV configuration error
+    const isRedisError = errorMessage.includes('Redis') || 
+                        errorMessage.includes('KV') || 
+                        errorMessage.includes('configuration') ||
+                        errorMessage.includes('environment variables');
+    
     // Always show error details to help diagnose issues
     return NextResponse.json(
       { 
         error: 'Failed to fetch projects', 
         details: errorMessage,
-        hint: errorMessage.includes('Redis') || errorMessage.includes('KV') 
-          ? 'Please ensure Redis/KV is configured in your Vercel environment variables (KV_REST_API_URL/KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL/UPSTASH_REDIS_REST_TOKEN)'
-          : undefined
+        hint: isRedisError 
+          ? 'This error indicates that Redis/KV is not configured. On Vercel, you must set up either Vercel KV or Upstash Redis. See README.md for setup instructions.'
+          : undefined,
+        setupInstructions: isRedisError ? {
+          vercelKV: 'Go to Vercel Dashboard → Your Project → Storage → Create KV Database → Copy KV_REST_API_URL and KV_REST_API_TOKEN to Environment Variables',
+          upstashRedis: 'Create an Upstash Redis database at https://upstash.com → Copy UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN to Vercel Environment Variables'
+        } : undefined
       },
       { status: 500 }
     );

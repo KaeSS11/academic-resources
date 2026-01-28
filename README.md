@@ -46,12 +46,38 @@ npm run dev
 
 ## Storage
 
+### Local Development
 Files are stored locally in the `uploads/` directory, organized by project and category. Project and file metadata are stored in JSON files in the `data/` directory.
 
-For production use, consider:
-- Cloud storage (AWS S3, Cloudinary, etc.)
-- Database (PostgreSQL, MongoDB, etc.)
-- Proper authentication system (NextAuth, Clerk, etc.)
+### Production Deployment (Vercel)
+
+**IMPORTANT**: When deploying to Vercel, you **MUST** configure Redis/KV storage because Vercel's file system is read-only.
+
+#### Option 1: Vercel KV (Recommended)
+1. Go to your Vercel project dashboard
+2. Navigate to **Storage** → **Create** → **KV**
+3. Create a new KV database
+4. Go to **Settings** → **Environment Variables**
+5. Add the following environment variables (they should be automatically added):
+   - `KV_REST_API_URL` - Your KV REST API URL
+   - `KV_REST_API_TOKEN` - Your KV REST API token
+
+#### Option 2: Upstash Redis
+1. Create an account at [Upstash](https://upstash.com)
+2. Create a new Redis database
+3. Copy the REST URL and token
+4. In Vercel, go to **Settings** → **Environment Variables**
+5. Add:
+   - `UPSTASH_REDIS_REST_URL` - Your Upstash Redis REST URL
+   - `UPSTASH_REDIS_REST_TOKEN` - Your Upstash Redis REST token
+
+**Note**: After adding environment variables, you need to redeploy your application for the changes to take effect.
+
+#### Troubleshooting
+If you see a 500 error on `/api/projects`, it's likely because Redis/KV is not configured. Check:
+1. Environment variables are set in Vercel project settings
+2. You've redeployed after adding environment variables
+3. The environment variables are correct (no typos, full URLs/tokens)
 
 ## Project Structure
 
