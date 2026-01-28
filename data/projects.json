@@ -2,11 +2,12 @@
   {
     "id": "1769615258066",
     "slug": "brm",
-    "name": "Satisfaction Survey",
+    "name": "Academic Poster",
     "createdAt": "2026-01-28T15:47:38.066Z",
-    "updatedAt": "2026-01-28T16:12:13.312Z",
+    "updatedAt": "2026-01-28T20:21:20.799Z",
     "moduleName": "Business Research Methods",
-    "supervisorName": "Carla Rinne"
+    "supervisorName": "Carla Rinne",
+    "description": "How Administration, Infrastructure, and Academics shape SRH Berlin Students' Overall Satisfaction: A Multifactor Analysis"
   },
   {
     "id": "1769615276596",
