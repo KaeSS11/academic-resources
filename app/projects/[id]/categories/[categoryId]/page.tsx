@@ -206,6 +206,40 @@ export default function CategoryPage() {
     }
   };
 
+  const handleViewPDF = async (file: FileMetadata) => {
+    if (!categoryPassword && isPasswordProtected) {
+      setPasswordError('Password required to view files');
+      setShowPasswordModal(true);
+      return;
+    }
+
+    try {
+      const headers: Record<string, string> = {
+        'x-category-password': categoryPassword || '',
+      };
+
+      const response = await fetch(
+        `/api/projects/${projectId}/categories/${categoryId}/files/${file.filename}`,
+        { headers }
+      );
+
+      if (response.ok) {
+        // Get the blob and create a blob URL for viewing
+        const blob = await response.blob();
+        const viewUrl = window.URL.createObjectURL(blob);
+        window.open(viewUrl, '_blank');
+      } else if (response.status === 403) {
+        setPasswordError('Invalid password. Please try again.');
+        setShowPasswordModal(true);
+      } else {
+        alert('Failed to view file');
+      }
+    } catch (error) {
+      console.error('View error:', error);
+      alert('Failed to view file');
+    }
+  };
+
   const handleDelete = async (file: FileMetadata) => {
     if (!confirm(`Are you sure you want to delete "${file.originalName}"?`)) return;
 
@@ -425,6 +459,15 @@ export default function CategoryPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                  {file.originalName.toLowerCase().endsWith('.pdf') && (
+                    <button
+                      onClick={() => handleViewPDF(file)}
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 bg-green-200 dark:bg-green-600/30 hover:bg-green-300 dark:hover:bg-green-600/50 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 text-green-800 dark:text-green-400"
+                    >
+                      <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline">View</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => handleDownload(file)}
                     className="px-3 sm:px-4 py-1.5 sm:py-2 bg-blue-200 dark:bg-blue-600/30 hover:bg-blue-300 dark:hover:bg-blue-600/50 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 text-blue-800 dark:text-blue-400"
