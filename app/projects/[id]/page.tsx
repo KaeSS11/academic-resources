@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { CATEGORIES, FileText, ArrowLeft } from '@/lib/projects';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { Lock } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -21,6 +22,7 @@ export default function ProjectPage() {
   const projectId = params.id as string;
   const [project, setProject] = useState<Project | null>(null);
   const [fileCounts, setFileCounts] = useState<Record<string, number>>({});
+  const [protectedCategories, setProtectedCategories] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (projectId) {
@@ -35,6 +37,17 @@ export default function ProjectPage() {
       if (response.ok) {
         const data = await response.json();
         setProject(data);
+        
+        // Detect which categories are password protected
+        const protected_categories = new Set<string>();
+        if (data.categories) {
+          Object.entries(data.categories).forEach(([categoryId, config]: [string, any]) => {
+            if (config.password) {
+              protected_categories.add(categoryId);
+            }
+          });
+        }
+        setProtectedCategories(protected_categories);
       }
     } catch (error) {
       console.error('Failed to fetch project:', error);
@@ -48,11 +61,11 @@ export default function ProjectPage() {
         CATEGORIES.map(async (category) => {
           try {
             const response = await fetch(
-              `/api/projects/${projectId}/categories/${category.id}/files`
+              `/api/projects/${projectId}/categories/${category.id}/count`
             );
             if (response.ok) {
-              const files = await response.json();
-              counts[category.id] = files.length;
+              const data = await response.json();
+              counts[category.id] = data.count;
             } else {
               counts[category.id] = 0;
             }
@@ -140,8 +153,11 @@ export default function ProjectPage() {
               className="bg-gray-50 dark:bg-[#1E1E1E] p-4 sm:p-6 md:p-8 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-[#252525] transition-colors border border-gray-200 dark:border-gray-800/30 flex flex-col items-center relative"
             >
               {fileCounts[category.id] !== undefined && (
-                <div className="absolute top-2 right-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold px-2 py-1 rounded-md">
+                <div className="absolute top-2 right-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1">
                   {fileCounts[category.id]}
+                  {protectedCategories.has(category.id) && (
+                    <Lock className="w-3.5 h-3.5" />
+                  )}
                 </div>
               )}
               <div className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 ${getCategoryBgColor(category.id)} ${getCategoryBorderColor(category.id)} rounded-lg flex items-center justify-center mb-3 sm:mb-4 border-2`}>

@@ -11,6 +11,7 @@ export interface Project {
   supervisorName?: string;
   createdAt: string;
   updatedAt: string;
+  categories?: Record<string, { password?: string }>;
 }
 
 export interface Category {

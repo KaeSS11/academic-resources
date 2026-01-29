@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { CATEGORIES, getCategoryById, FileText, ArrowLeft, Download, Trash2 } from '@/lib/projects';
 import { checkAdminStatus } from '@/lib/auth';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface FileMetadata {
   id: string;
@@ -26,6 +27,12 @@ export default function CategoryPage() {
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [projectName, setProjectName] = useState('');
+  const [isPasswordProtected, setIsPasswordProtected] = useState(false);
+  const [categoryPassword, setCategoryPassword] = useState<string | null>(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const category = getCategoryById(categoryId);
 
@@ -33,9 +40,61 @@ export default function CategoryPage() {
     checkAdminStatus().then(setIsAdminUser);
     if (projectId && categoryId) {
       fetchProjectName();
-      fetchFiles();
+      checkPasswordProtection();
     }
   }, [projectId, categoryId]);
+
+  const checkPasswordProtection = async () => {
+    try {
+      const response = await fetch(`/api/projects/${projectId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const categoryPassword = data.categories?.[categoryId]?.password;
+        if (categoryPassword) {
+          setIsPasswordProtected(true);
+          setShowPasswordModal(true);
+        } else {
+          fetchFiles();
+        }
+      }
+    } catch (error) {
+      console.error('Failed to check password protection:', error);
+      fetchFiles();
+    }
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+
+    if (!passwordInput.trim()) {
+      setPasswordError('Please enter a password');
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/projects/${projectId}/categories/${categoryId}/files`, {
+        headers: {
+          'x-category-password': passwordInput,
+        },
+      });
+
+      if (response.ok) {
+        setCategoryPassword(passwordInput);
+        setShowPasswordModal(false);
+        setPasswordInput('');
+        fetchFiles();
+      } else if (response.status === 403) {
+        setPasswordError('Invalid password. Access denied.');
+        setPasswordInput('');
+      } else {
+        setPasswordError('An error occurred. Please try again.');
+      }
+    } catch (error) {
+      console.error('Password validation error:', error);
+      setPasswordError('An error occurred. Please try again.');
+    }
+  };
 
   const fetchProjectName = async () => {
     try {
@@ -51,10 +110,21 @@ export default function CategoryPage() {
 
   const fetchFiles = async () => {
     try {
-      const response = await fetch(`/api/projects/${projectId}/categories/${categoryId}/files`);
+      const headers: Record<string, string> = {};
+      if (categoryPassword) {
+        headers['x-category-password'] = categoryPassword;
+      }
+
+      const response = await fetch(`/api/projects/${projectId}/categories/${categoryId}/files`, {
+        headers,
+      });
+
       if (response.ok) {
         const data = await response.json();
         setFiles(data);
+      } else if (response.status === 403) {
+        setShowPasswordModal(true);
+        setPasswordError('Session expired. Please enter password again.');
       }
     } catch (error) {
       console.error('Failed to fetch files:', error);
@@ -94,8 +164,44 @@ export default function CategoryPage() {
     }
   };
 
-  const handleDownload = (file: FileMetadata) => {
-    window.open(`/api/projects/${projectId}/categories/${categoryId}/files/${file.filename}`, '_blank');
+  const handleDownload = async (file: FileMetadata) => {
+    if (!categoryPassword && isPasswordProtected) {
+      setPasswordError('Password required to download files');
+      setShowPasswordModal(true);
+      return;
+    }
+
+    try {
+      const headers: Record<string, string> = {
+        'x-category-password': categoryPassword || '',
+      };
+
+      const response = await fetch(
+        `/api/projects/${projectId}/categories/${categoryId}/files/${file.filename}`,
+        { headers }
+      );
+
+      if (response.ok) {
+        // Get the blob and create a download link
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = file.originalName || file.filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        document.body.removeChild(a);
+      } else if (response.status === 403) {
+        setPasswordError('Invalid password. Please try again.');
+        setShowPasswordModal(true);
+      } else {
+        alert('Failed to download file');
+      }
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download file');
+    }
   };
 
   const handleDelete = async (file: FileMetadata) => {
@@ -178,6 +284,73 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#121212] text-gray-900 dark:text-white transition-all duration-300 ease-in-out">
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-[#1E1E1E] rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6 sm:p-8">
+              <h2 className="text-xl sm:text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+                Access Required
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-6">
+                This folder is password protected. Please enter the password to access it.
+              </p>
+
+              <form onSubmit={handlePasswordSubmit}>
+                <div className="relative mb-4">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    className="w-full px-4 py-2 pr-12 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-[#121212] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+
+                {passwordError && (
+                  <div className="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded text-red-800 dark:text-red-200 text-sm">
+                    {passwordError}
+                  </div>
+                )}
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPasswordModal(false);
+                      setPasswordInput('');
+                      setPasswordError('');
+                      router.back();
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg font-medium text-gray-900 dark:text-white transition-colors text-sm sm:text-base"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium text-white transition-colors text-sm sm:text-base"
+                  >
+                    Unlock
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white dark:bg-[#121212] border-b border-gray-200 dark:border-gray-800/50 transition-all duration-300 ease-in-out">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-4 sm:py-6">
           <div className="flex justify-between items-start mb-4">
