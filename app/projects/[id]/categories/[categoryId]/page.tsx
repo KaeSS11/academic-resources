@@ -83,7 +83,9 @@ export default function CategoryPage() {
         setCategoryPassword(passwordInput);
         setShowPasswordModal(false);
         setPasswordInput('');
-        fetchFiles();
+        // Fetch files with the password in the same request
+        const data = await response.json();
+        setFiles(data);
       } else if (response.status === 403) {
         setPasswordError('Invalid password. Access denied.');
         setPasswordInput('');
