@@ -34,7 +34,7 @@ export const CATEGORIES: Category[] = [
     id: 'presentation',
     name: 'Presentation',
     icon: FileText,
-    color: 'blue',
+    color: 'red',
     description: 'Slides, figures, and presentation assets (charts, diagrams, visuals)'
   },
   {

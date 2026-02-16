@@ -91,6 +91,7 @@ export default function ProjectPage() {
   const getCategoryBgColor = (categoryId: string) => {
     const colorMap: Record<string, string> = {
       'graphical-data': 'bg-blue-100/50 dark:bg-muted-blue-light/30',
+      'presentation': 'bg-red-100/50 dark:bg-muted-red-light/30',
       'literature': 'bg-purple-100/50 dark:bg-muted-purple-light/30',
       'questionnaire-data': 'bg-green-100/50 dark:bg-muted-green-light/30',
       'other': 'bg-orange-100/50 dark:bg-muted-orange-light/30',
@@ -101,6 +102,7 @@ export default function ProjectPage() {
   const getCategoryBorderColor = (categoryId: string) => {
     const colorMap: Record<string, string> = {
       'graphical-data': 'border-blue-200 dark:border-muted-blue',
+      'presentation': 'border-red-200 dark:border-muted-red',
       'literature': 'border-purple-200 dark:border-muted-purple',
       'questionnaire-data': 'border-green-200 dark:border-muted-green',
       'other': 'border-orange-200 dark:border-muted-orange',
@@ -111,6 +113,7 @@ export default function ProjectPage() {
   const getIconColor = (categoryId: string) => {
     const colorMap: Record<string, string> = {
       'graphical-data': 'text-icon-blue',
+      'presentation': 'text-icon-red',
       'literature': 'text-icon-purple',
       'questionnaire-data': 'text-icon-green',
       'other': 'text-icon-orange',
