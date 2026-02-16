@@ -31,6 +31,13 @@ export const CATEGORIES: Category[] = [
     description: 'Charts, graphs, diagrams, and visual data representations'
   },
   {
+    id: 'presentation',
+    name: 'Presentation',
+    icon: FileText,
+    color: 'blue',
+    description: 'Slides, figures, and presentation assets (charts, diagrams, visuals)'
+  },
+  {
     id: 'literature',
     name: 'Literature',
     icon: BookOpen,
