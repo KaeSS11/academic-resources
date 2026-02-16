@@ -206,7 +206,21 @@ export default function CategoryPage() {
     }
   };
 
-  const handleViewPDF = async (file: FileMetadata) => {
+  const canViewInBrowser = (file: FileMetadata) => {
+    const name = file.originalName.toLowerCase();
+    return (
+      file.mimeType === 'application/pdf' ||
+      file.mimeType.startsWith('image/') ||
+      name.endsWith('.pdf') ||
+      name.endsWith('.png') ||
+      name.endsWith('.jpg') ||
+      name.endsWith('.jpeg') ||
+      name.endsWith('.webp') ||
+      name.endsWith('.gif')
+    );
+  };
+
+  const handleViewFile = async (file: FileMetadata) => {
     if (!categoryPassword && isPasswordProtected) {
       setPasswordError('Password required to view files');
       setShowPasswordModal(true);
@@ -463,9 +477,9 @@ export default function CategoryPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-                  {file.originalName.toLowerCase().endsWith('.pdf') && (
+                  {canViewInBrowser(file) && (
                     <button
-                      onClick={() => handleViewPDF(file)}
+                      onClick={() => handleViewFile(file)}
                       className="px-3 sm:px-4 py-1.5 sm:py-2 bg-green-200 dark:bg-green-600/30 hover:bg-green-300 dark:hover:bg-green-600/50 rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1.5 sm:gap-2 text-green-800 dark:text-green-400"
                     >
                       <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
